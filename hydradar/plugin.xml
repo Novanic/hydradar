@@ -19,7 +19,6 @@
       </category>
       <view
             name="Hydra Results"
-            icon="icons/icon.gif"
             category="de.novanic.hydradar"
             class="de.novanic.hydradar.view.results.HydraResultsView"
             id="de.novanic.hydradar.view.results.HydraResultsView">
