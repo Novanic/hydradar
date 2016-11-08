@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="hydradar:jar">
+    <output-path>C:/eclipse-mars/plugins</output-path>
+    <root id="archive" name="de.novanic.hydradar.jar">
+      <element id="directory" name="META-INF">
+        <element id="dir-copy" path="$PROJECT_DIR$/hydradar/META-INF" />
+      </element>
+      <element id="file-copy" path="$PROJECT_DIR$/hydradar/plugin.xml" />
+      <element id="file-copy" path="$PROJECT_DIR$/hydradar/contexts.xml" />
+      <element id="module-output" name="de.novanic.hydradar" />
+    </root>
+  </artifact>
+</component>
