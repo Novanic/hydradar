@@ -19,6 +19,7 @@
       </category>
       <view
             name="Hydra Results"
+            icon="platform:/plugin/org.eclipse.jdt.ui/icons/full/obj16/brkpi_obj.png"
             category="de.novanic.hydradar"
             class="de.novanic.hydradar.view.results.HydraResultsView"
             id="de.novanic.hydradar.view.results.HydraResultsView">
