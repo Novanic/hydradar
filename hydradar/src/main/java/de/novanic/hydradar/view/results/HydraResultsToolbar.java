@@ -108,6 +108,10 @@ public class HydraResultsToolbar
         return myShowCurrentTypeAction.isChecked();
     }
 
+    public boolean isSystemGroupActionChecked() {
+        return mySystemModuleGroupToggleAction.isChecked();
+    }
+
     private void savePreferences(IEclipsePreferences aPreferences) {
         try {
             aPreferences.flush();

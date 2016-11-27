@@ -142,14 +142,28 @@ public class HydraResultsView extends ViewPart {
 
     public void reload() {
         myResultData = new HydraResultsImporter().load();
+
+        final SymbolTreeContentProvider theContentProvider;
         if(myResultData.getResultFile() != null) {
             setTitleToolTip(myResultData.getResultFile().getName());
 
-            SymbolTreeContentProvider theContentProvider = createUnusedSymbolsContentProvider(myResultData);
-            refreshView(theContentProvider);
+            if(myResultsToolbar.isShowCurrentTypeActionChecked()) {
+                IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+                if(theActiveEditor instanceof CompilationUnitEditor) {
+                    theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(theActiveEditor);
+                } else {
+                    theContentProvider = createEmptyContentProvider();
+                }
+            } else if(myResultsToolbar.isSystemGroupActionChecked()) {
+                theContentProvider = createUnusedSymbolsGroupedBySystemModuleContentProvider(myResultData);
+            } else {
+                theContentProvider = createUnusedSymbolsContentProvider(myResultData);
+            }
         } else {
             setTitleToolTip("");
+            theContentProvider = createEmptyContentProvider();
         }
+        refreshView(theContentProvider);
     }
 
     private SymbolTreeContentProvider createUnusedSymbolsContentProvider(ResultData aResultData) {
