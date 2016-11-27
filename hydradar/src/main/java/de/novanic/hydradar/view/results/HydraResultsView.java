@@ -272,6 +272,9 @@ public class HydraResultsView extends ViewPart implements EventHandler {
     }
 
     private void startThread(Runnable aRunnable) {
+        //The user should not toggle between modes when a thread is currently running.
+        myResultsToolbar.disable();
+
         new Thread(aRunnable).start();
     }
 }
