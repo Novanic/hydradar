@@ -20,6 +20,7 @@ import org.eclipse.ui.internal.ViewSite;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedSet;
 
 /**
  * @author sstrohschein
@@ -33,17 +34,17 @@ public class TreeContentProviderUngrouped extends AbstractTreeContentProvider
     private final MethodsTreeCategory myMethodsTreeCategory;
     private final UselessMethodsTreeCategory myUselessMethodsTreeCategory;
     private final VariablesTreeCategory myVariablesTreeCategory;
-    private final List<PackageSymbol> myUnusedPackages;
-    private final List<TypeSymbol> myUnusedTypes;
-    private final List<MethodSymbol> myUnusedMethods;
-    private final List<MethodSymbol> myUselessMethods;
-    private final List<VariableSymbol> myUnusedVariables;
+    private final SortedSet<PackageSymbol> myUnusedPackages;
+    private final SortedSet<TypeSymbol> myUnusedTypes;
+    private final SortedSet<MethodSymbol> myUnusedMethods;
+    private final SortedSet<MethodSymbol> myUselessMethods;
+    private final SortedSet<VariableSymbol> myUnusedVariables;
 
-    public TreeContentProviderUngrouped(List<PackageSymbol> aUnusedPackages,
-                                         List<TypeSymbol> aUnusedTypes,
-                                         List<MethodSymbol> aUnusedMethods,
-                                         List<MethodSymbol> aUselessMethods,
-                                         List<VariableSymbol> aUnusedVariables) {
+    public TreeContentProviderUngrouped(SortedSet<PackageSymbol> aUnusedPackages,
+                                        SortedSet<TypeSymbol> aUnusedTypes,
+                                        SortedSet<MethodSymbol> aUnusedMethods,
+                                        SortedSet<MethodSymbol> aUselessMethods,
+                                        SortedSet<VariableSymbol> aUnusedVariables) {
         myUnusedPackages = aUnusedPackages;
         myUnusedTypes = aUnusedTypes;
         myUnusedMethods = aUnusedMethods;

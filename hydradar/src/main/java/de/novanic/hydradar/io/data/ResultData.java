@@ -49,43 +49,43 @@ public class ResultData
         return new ArrayList<>(mySystemDataEntries.values());
     }
 
-    public List<PackageSymbol> getUnusedPackages() {
+    public SortedSet<PackageSymbol> getUnusedPackages() {
         SortedSet<PackageSymbol> theUnusedPackages = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUnusedPackages.addAll(theSystemData.getUnusedPackages());
         }
-        return new ArrayList<>(theUnusedPackages);
+        return theUnusedPackages;
     }
 
-    public List<TypeSymbol> getUnusedTypes() {
+    public SortedSet<TypeSymbol> getUnusedTypes() {
         SortedSet<TypeSymbol> theUnusedTypes = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUnusedTypes.addAll(theSystemData.getUnusedTypes());
         }
-        return new ArrayList<>(theUnusedTypes);
+        return theUnusedTypes;
     }
 
-    public List<MethodSymbol> getUnusedMethods() {
+    public SortedSet<MethodSymbol> getUnusedMethods() {
         SortedSet<MethodSymbol> theUnusedMethods = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUnusedMethods.addAll(theSystemData.getUnusedMethods());
         }
-        return new ArrayList<>(theUnusedMethods);
+        return theUnusedMethods;
     }
 
-    public List<MethodSymbol> getUselessMethods() {
+    public SortedSet<MethodSymbol> getUselessMethods() {
         SortedSet<MethodSymbol> theUselessMethods = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUselessMethods.addAll(theSystemData.getUselessMethods());
         }
-        return new ArrayList<>(theUselessMethods);
+        return theUselessMethods;
     }
 
-    public List<VariableSymbol> getUnusedVariables() {
+    public SortedSet<VariableSymbol> getUnusedVariables() {
         SortedSet<VariableSymbol> theUnusedVariables = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUnusedVariables.addAll(theSystemData.getUnusedVariables());
         }
-        return new ArrayList<>(theUnusedVariables);
+        return theUnusedVariables;
     }
 }

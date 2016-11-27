@@ -15,8 +15,6 @@ import de.novanic.hydradar.io.data.symbol.PackageSymbol;
 import de.novanic.hydradar.io.data.symbol.TypeSymbol;
 import de.novanic.hydradar.io.data.symbol.VariableSymbol;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -57,40 +55,40 @@ public class ResultModuleData
         myUnusedPackages.add(aPackage);
     }
 
-    public List<PackageSymbol> getUnusedPackages() {
-        return new ArrayList<>(myUnusedPackages);
+    public SortedSet<PackageSymbol> getUnusedPackages() {
+        return myUnusedPackages;
     }
 
     public void addUnusedType(TypeSymbol aType) {
         myUnusedTypes.add(aType);
     }
 
-    public List<TypeSymbol> getUnusedTypes() {
-        return new ArrayList<>(myUnusedTypes);
+    public SortedSet<TypeSymbol> getUnusedTypes() {
+        return myUnusedTypes;
     }
 
     public void addUnusedMethod(MethodSymbol aMethod) {
         myUnusedMethods.add(aMethod);
     }
 
-    public List<MethodSymbol> getUnusedMethods() {
-        return new ArrayList<>(myUnusedMethods);
+    public SortedSet<MethodSymbol> getUnusedMethods() {
+        return myUnusedMethods;
     }
 
     public void addUselessMethod(MethodSymbol aMethod) {
         myUselessMethods.add(aMethod);
     }
 
-    public List<MethodSymbol> getUselessMethods() {
-        return new ArrayList<>(myUselessMethods);
+    public SortedSet<MethodSymbol> getUselessMethods() {
+        return myUselessMethods;
     }
 
     public void addUnusedVariable(VariableSymbol aVariable) {
         myUnusedVariables.add(aVariable);
     }
 
-    public List<VariableSymbol> getUnusedVariables() {
-        return new ArrayList<>(myUnusedVariables);
+    public SortedSet<VariableSymbol> getUnusedVariables() {
+        return myUnusedVariables;
     }
 
     @Override

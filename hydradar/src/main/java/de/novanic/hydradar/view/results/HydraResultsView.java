@@ -224,17 +224,17 @@ public class HydraResultsView extends ViewPart {
         }
 
         displayUnusedSymbols(aResultsTree,
-                new ArrayList<>(theUnusedPackages),
-                new ArrayList<>(theUnusedTypes),
-                new ArrayList<>(theUnusedMethods),
-                new ArrayList<>(theUselessMethods),
-                new ArrayList<>(theUnusedVariables));
+                theUnusedPackages,
+                theUnusedTypes,
+                theUnusedMethods,
+                theUselessMethods,
+                theUnusedVariables);
 
         aResultsTree.getViewer().expandAll();
     }
 
     private void attachUnusedSymbolsEmpty(FilteredTree aResultsTree) {
-        displayUnusedSymbols(aResultsTree, new ArrayList<PackageSymbol>(), new ArrayList<TypeSymbol>(), new ArrayList<MethodSymbol>(), new ArrayList<MethodSymbol>(), new ArrayList<VariableSymbol>());
+        displayUnusedSymbols(aResultsTree, new TreeSet<PackageSymbol>(), new TreeSet<TypeSymbol>(), new TreeSet<MethodSymbol>(), new TreeSet<MethodSymbol>(), new TreeSet<VariableSymbol>());
     }
 
     private void displayUnusedSymbols(FilteredTree aResultsTree, ResultData aResultData) {
@@ -247,11 +247,11 @@ public class HydraResultsView extends ViewPart {
     }
 
     private void displayUnusedSymbols(FilteredTree aResultsTree,
-                                      List<PackageSymbol> aUnusedPackages,
-                                      List<TypeSymbol> aUnusedTypes,
-                                      List<MethodSymbol> aUnusedMethods,
-                                      List<MethodSymbol> aUselessMethods,
-                                      List<VariableSymbol> aUnusedVariables) {
+                                      SortedSet<PackageSymbol> aUnusedPackages,
+                                      SortedSet<TypeSymbol> aUnusedTypes,
+                                      SortedSet<MethodSymbol> aUnusedMethods,
+                                      SortedSet<MethodSymbol> aUselessMethods,
+                                      SortedSet<VariableSymbol> aUnusedVariables) {
 
         if(myShowCurrentTypeAction != null && myShowCurrentTypeAction.isChecked()
                 && (!aUnusedPackages.isEmpty() || !aUnusedTypes.isEmpty() || !aUnusedMethods.isEmpty() || !aUnusedVariables.isEmpty())) {

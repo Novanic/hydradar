@@ -47,44 +47,44 @@ public class ResultSystemData
         return myModuleDataEntries;
     }
 
-    public List<PackageSymbol> getUnusedPackages() {
+    public SortedSet<PackageSymbol> getUnusedPackages() {
         SortedSet<PackageSymbol> theUnusedPackages = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUnusedPackages.addAll(theModuleData.getUnusedPackages());
         }
-        return new ArrayList<>(theUnusedPackages);
+        return theUnusedPackages;
     }
 
-    public List<TypeSymbol> getUnusedTypes() {
+    public SortedSet<TypeSymbol> getUnusedTypes() {
         SortedSet<TypeSymbol> theUnusedTypes = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUnusedTypes.addAll(theModuleData.getUnusedTypes());
         }
-        return new ArrayList<>(theUnusedTypes);
+        return theUnusedTypes;
     }
 
-    public List<MethodSymbol> getUnusedMethods() {
+    public SortedSet<MethodSymbol> getUnusedMethods() {
         SortedSet<MethodSymbol> theUnusedMethods = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUnusedMethods.addAll(theModuleData.getUnusedMethods());
         }
-        return new ArrayList<>(theUnusedMethods);
+        return theUnusedMethods;
     }
 
-    public List<MethodSymbol> getUselessMethods() {
+    public SortedSet<MethodSymbol> getUselessMethods() {
         SortedSet<MethodSymbol> theUselessMethods = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUselessMethods.addAll(theModuleData.getUselessMethods());
         }
-        return new ArrayList<>(theUselessMethods);
+        return theUselessMethods;
     }
 
-    public List<VariableSymbol> getUnusedVariables() {
+    public SortedSet<VariableSymbol> getUnusedVariables() {
         SortedSet<VariableSymbol> theUnusedVariables = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUnusedVariables.addAll(theModuleData.getUnusedVariables());
         }
-        return new ArrayList<>(theUnusedVariables);
+        return theUnusedVariables;
     }
 
     @Override

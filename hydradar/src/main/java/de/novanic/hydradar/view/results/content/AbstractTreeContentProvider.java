@@ -16,7 +16,7 @@ import de.novanic.hydradar.view.results.content.category.TreeCategory;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * @author sstrohschein
@@ -45,7 +45,7 @@ abstract class AbstractTreeContentProvider implements ITreeContentProvider
 
     }
 
-    protected TreeCategoryItem[] createArray(List<? extends Symbol> aSymbols, TreeCategory aTreeCategory) {
+    protected TreeCategoryItem[] createArray(Collection<? extends Symbol> aSymbols, TreeCategory aTreeCategory) {
         TreeCategoryItem[] theTreeCategoryItems = new TreeCategoryItem[aSymbols.size()];
         int i = 0;
         for(Symbol theSymbol: aSymbols) {
