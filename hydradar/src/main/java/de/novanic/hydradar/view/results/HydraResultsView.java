@@ -12,11 +12,8 @@ package de.novanic.hydradar.view.results;
 
 import de.novanic.hydradar.io.HydraResultsImporter;
 import de.novanic.hydradar.io.data.ResultData;
-import de.novanic.hydradar.io.data.ResultModuleData;
-import de.novanic.hydradar.io.data.ResultSystemData;
 import de.novanic.hydradar.view.results.content.SymbolTreeContentProvider;
 import de.novanic.hydradar.view.results.content.SymbolTreeContentProviderFactory;
-import de.novanic.hydradar.view.results.content.category.TreeCategory;
 import de.novanic.hydradar.view.util.IconLoader;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
@@ -41,7 +38,6 @@ public class HydraResultsView extends ViewPart {
 
     private final Image IMAGE_ICON = IconLoader.loadImage("obj16/brkpi_obj.png");
     private final Image IMAGE_IDEA = IconLoader.loadImage("elcl16/smartmode_co.png");
-    private final Image IMAGE_MODULE = IconLoader.loadImage("eview16/packages.png");
 
     private ResultData myResultData;
     private FilteredTree myResultsTree;
@@ -201,20 +197,5 @@ public class HydraResultsView extends ViewPart {
             }
         }
         return theTreeCategoryItems;
-    }
-
-    private class TreeCategoryLabelProvider extends LabelProvider
-    {
-        @Override
-        public Image getImage(Object aElement) {
-            if(aElement instanceof TreeCategoryItem) {
-                return getImage(((TreeCategoryItem)aElement).getTreeCategory());
-            } else if(aElement instanceof TreeCategory) {
-                return ((TreeCategory)aElement).getIcon();
-            } else if(aElement instanceof ResultSystemData || aElement instanceof ResultModuleData) {
-                return IMAGE_MODULE;
-            }
-            return super.getImage(aElement);
-        }
     }
 }
