@@ -10,8 +10,6 @@
  */
 package de.novanic.hydradar.view.results;
 
-import de.novanic.hydradar.HydradarPlugin;
-import de.novanic.hydradar.HydradarRuntimeException;
 import de.novanic.hydradar.io.HydraResultsImporter;
 import de.novanic.hydradar.io.data.ResultData;
 import de.novanic.hydradar.io.data.ResultModuleData;
@@ -24,22 +22,15 @@ import de.novanic.hydradar.view.results.content.TreeContentProviderGrouped;
 import de.novanic.hydradar.view.results.content.TreeContentProviderUngrouped;
 import de.novanic.hydradar.view.results.content.category.TreeCategory;
 import de.novanic.hydradar.view.util.IconLoader;
-import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
-import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.*;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
@@ -47,7 +38,6 @@ import org.eclipse.ui.*;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.ViewPart;
-import org.osgi.service.prefs.BackingStoreException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,20 +48,17 @@ public class HydraResultsView extends ViewPart {
 
     private final Image IMAGE_ICON = IconLoader.loadImage("obj16/brkpi_obj.png");
     private final Image IMAGE_IDEA = IconLoader.loadImage("elcl16/smartmode_co.png");
-    private final Image IMAGE_SYSTEM_MODULE_GROUP = IconLoader.loadImage("elcl16/hierarchicalLayout.png");
-    private final Image IMAGE_SHOW_ONLY_CURRENT_TYPE = IconLoader.loadImage("elcl16/synced.png");
     private final Image IMAGE_MODULE = IconLoader.loadImage("eview16/packages.png");
 
     private ResultData myResultData;
     private FilteredTree myResultsTree;
-    private Action myShowCurrentTypeAction;
-    private Action mySystemModuleGroupToggleAction;
+    private HydraResultsToolbar myResultsToolbar;
 
     public void createPartControl(Composite aParent) {
         myResultsTree = createResultsTree(aParent, getSite());
-
+        myResultsToolbar = attachToolbar();
+        
         reload();
-        attachToolbar();
 
         registerTreeCategoryItemListener(myResultsTree);
         registerActiveWindowSwitchListener();
@@ -126,7 +113,7 @@ public class HydraResultsView extends ViewPart {
 
             @Override
             public void partBroughtToTop(IWorkbenchPart aWorkbenchPart) {
-                if(myShowCurrentTypeAction.isChecked() && aWorkbenchPart instanceof IEditorPart) {
+                if(myResultsToolbar.isShowCurrentTypeActionChecked() && aWorkbenchPart instanceof IEditorPart) {
                     if(aWorkbenchPart instanceof CompilationUnitEditor) {
                         attachUnusedSymbolsOfActiveType((IEditorPart)aWorkbenchPart);
                     } else {
@@ -253,7 +240,7 @@ public class HydraResultsView extends ViewPart {
                                       SortedSet<MethodSymbol> aUselessMethods,
                                       SortedSet<VariableSymbol> aUnusedVariables) {
 
-        if(myShowCurrentTypeAction != null && myShowCurrentTypeAction.isChecked()
+        if(myResultsToolbar.isShowCurrentTypeActionChecked()
                 && (!aUnusedPackages.isEmpty() || !aUnusedTypes.isEmpty() || !aUnusedMethods.isEmpty() || !aUnusedVariables.isEmpty())) {
             setTitleImage(IMAGE_IDEA);
         } else {
@@ -265,71 +252,33 @@ public class HydraResultsView extends ViewPart {
         aResultsTree.getViewer().setInput(getViewSite());
     }
 
-    private void attachToolbar() {
-        myShowCurrentTypeAction = new Action("Show only current type", Action.AS_CHECK_BOX) {};
-        myShowCurrentTypeAction.setImageDescriptor(new ImageDescriptor() {
-            @Override
-            public ImageData getImageData() {
-                return IMAGE_SHOW_ONLY_CURRENT_TYPE.getImageData();
-            }
-        });
-
-        mySystemModuleGroupToggleAction = new Action("Group by system/module", Action.AS_CHECK_BOX) {};
-        mySystemModuleGroupToggleAction.setImageDescriptor(new ImageDescriptor() {
-            @Override
-            public ImageData getImageData() {
-                return IMAGE_SYSTEM_MODULE_GROUP.getImageData();
-            }
-        });
-
-        myShowCurrentTypeAction.addPropertyChangeListener(new IPropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent aPropertyChangeEvent) {
-                if(Action.CHECKED.equals(aPropertyChangeEvent.getProperty())) {
-                    boolean theSetting = (boolean)aPropertyChangeEvent.getNewValue();
-                    if(theSetting) {
-                        mySystemModuleGroupToggleAction.setEnabled(false);
-                        mySystemModuleGroupToggleAction.setChecked(false);
-                        IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-                        if(theActiveEditor instanceof CompilationUnitEditor) {
-                            attachUnusedSymbolsOfActiveType(theActiveEditor);
-                        }
-                    } else {
-                        attachUnusedSymbols(myResultData, myResultsTree);
-                        mySystemModuleGroupToggleAction.setEnabled(true);
-                    }
-                    IEclipsePreferences thePreferences = InstanceScope.INSTANCE.getNode(HydraResultsView.class.getName());
-                    thePreferences.putBoolean(HydradarPlugin.PROPERTY_SHOW_ONLY_CURRENT_TYPE, theSetting);
-                    thePreferences.putBoolean(HydradarPlugin.PROPERTY_SYSTEM_MODULE_GROUP, mySystemModuleGroupToggleAction.isChecked()); //it is changed above
-                    savePreferences(thePreferences);
-                }
-            }
-        });
-        mySystemModuleGroupToggleAction.addPropertyChangeListener(new IPropertyChangeListener() {
-            @Override
-            public void propertyChange(PropertyChangeEvent aPropertyChangeEvent) {
-                if(Action.CHECKED.equals(aPropertyChangeEvent.getProperty()) && mySystemModuleGroupToggleAction.isEnabled()) {
-                    boolean theSetting = (boolean)aPropertyChangeEvent.getNewValue();
-                    if(theSetting) {
-                        attachUnusedSymbolsGroupedBySystemModule(myResultData, myResultsTree);
-                    } else {
-                        attachUnusedSymbols(myResultData, myResultsTree);
-                    }
-                    IEclipsePreferences thePreferences = InstanceScope.INSTANCE.getNode(HydraResultsView.class.getName());
-                    thePreferences.putBoolean(HydradarPlugin.PROPERTY_SYSTEM_MODULE_GROUP, theSetting);
-                    savePreferences(thePreferences);
-                }
-            }
-        });
-
-        IEclipsePreferences thePreferences = InstanceScope.INSTANCE.getNode(HydraResultsView.class.getName());
-        myShowCurrentTypeAction.setChecked(thePreferences.getBoolean(HydradarPlugin.PROPERTY_SHOW_ONLY_CURRENT_TYPE, false));
-        mySystemModuleGroupToggleAction.setChecked(thePreferences.getBoolean(HydradarPlugin.PROPERTY_SYSTEM_MODULE_GROUP, false));
-        savePreferences(thePreferences);
-
+    private HydraResultsToolbar attachToolbar() {
         IToolBarManager theToolBarManager = getViewSite().getActionBars().getToolBarManager();
-        theToolBarManager.add(myShowCurrentTypeAction);
-        theToolBarManager.add(mySystemModuleGroupToggleAction);
+        HydraResultsToolbar theResultsToolbar = new HydraResultsToolbar(theToolBarManager);
+
+        theResultsToolbar.addListener(new HydraResultsToolbarListener() {
+            @Override
+            public void onToggleShowCurrentType(boolean isShowCurrentType) {
+                if(isShowCurrentType) {
+                    IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+                    if(theActiveEditor instanceof CompilationUnitEditor) {
+                        attachUnusedSymbolsOfActiveType(theActiveEditor);
+                    }
+                } else {
+                    attachUnusedSymbols(myResultData, myResultsTree);
+                }
+            }
+
+            @Override
+            public void onToggleSystemModuleGroup(boolean isShowSystemGroup) {
+                if(isShowSystemGroup) {
+                    attachUnusedSymbolsGroupedBySystemModule(myResultData, myResultsTree);
+                } else {
+                    attachUnusedSymbols(myResultData, myResultsTree);
+                }
+            }
+        });
+        return theResultsToolbar;
     }
 
     public void setFocus() {
@@ -350,14 +299,6 @@ public class HydraResultsView extends ViewPart {
             }
         }
         return theTreeCategoryItems;
-    }
-
-    private void savePreferences(IEclipsePreferences aPreferences) {
-        try {
-            aPreferences.flush();
-        } catch(BackingStoreException e) {
-            throw new HydradarRuntimeException("Error on saving preferences!", e);
-        }
     }
 
     private class TreeCategoryLabelProvider extends LabelProvider
