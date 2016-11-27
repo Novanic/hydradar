@@ -39,7 +39,7 @@ import java.util.List;
 
 public class HydraResultsView extends ViewPart implements EventHandler {
 
-    private static final String EVENT_GRAPH_REFRESH = "hyruleGraphRefresh";
+    private static final String EVENT_GRAPH_REFRESH = "de/novanic/hydradar/graphRefresh";
 
     private final Image IMAGE_ICON = IconLoader.loadImage("obj16/brkpi_obj.png");
     private final Image IMAGE_IDEA = IconLoader.loadImage("elcl16/smartmode_co.png");
@@ -147,7 +147,21 @@ public class HydraResultsView extends ViewPart implements EventHandler {
             public void run() {
                 myResultData = new HydraResultsImporter().load();
 
-                myEventBroker.send(EVENT_GRAPH_REFRESH,null);
+                final SymbolTreeContentProvider theContentProvider;
+                if(myResultData.getResultFile() != null) {
+                    setTitleToolTip(myResultData.getResultFile().getName());
+
+                    theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(
+                            myResultData,
+                            myResultsToolbar.isShowCurrentTypeActionChecked(),
+                            myResultsToolbar.isSystemGroupActionChecked());
+                } else {
+                    setTitleToolTip("");
+
+                    theContentProvider = mySymbolTreeContentProviderFactory.createEmptyContentProvider();
+                }
+
+                myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
             }
         };
         new Thread(theReloadRunnable).start();
@@ -155,19 +169,7 @@ public class HydraResultsView extends ViewPart implements EventHandler {
 
     @Override
     public void handleEvent(Event aEvent) {
-        final SymbolTreeContentProvider theContentProvider;
-        if(myResultData.getResultFile() != null) {
-            setTitleToolTip(myResultData.getResultFile().getName());
-
-            theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(
-                    myResultData,
-                    myResultsToolbar.isShowCurrentTypeActionChecked(),
-                    myResultsToolbar.isSystemGroupActionChecked());
-        } else {
-            setTitleToolTip("");
-
-            theContentProvider = mySymbolTreeContentProviderFactory.createEmptyContentProvider();
-        }
+        SymbolTreeContentProvider theContentProvider = (SymbolTreeContentProvider)aEvent.getProperty(IEventBroker.DATA);
         refreshView(theContentProvider);
         myResultsToolbar.enable();
     }
