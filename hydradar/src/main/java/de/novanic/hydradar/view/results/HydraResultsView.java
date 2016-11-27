@@ -138,9 +138,18 @@ public class HydraResultsView extends ViewPart {
     public void reload() {
         myResultData = new HydraResultsImporter().load();
 
-        final SymbolTreeContentProvider theContentProvider = createSymbolTreeContentProvider(
-                myResultsToolbar.isShowCurrentTypeActionChecked(),
-                myResultsToolbar.isSystemGroupActionChecked());
+        final SymbolTreeContentProvider theContentProvider;
+        if(myResultData.getResultFile() != null) {
+            setTitleToolTip(myResultData.getResultFile().getName());
+
+            theContentProvider = createSymbolTreeContentProvider(
+                    myResultsToolbar.isShowCurrentTypeActionChecked(),
+                    myResultsToolbar.isSystemGroupActionChecked());
+        } else {
+            setTitleToolTip("");
+
+            theContentProvider = createEmptyContentProvider();
+        }
         refreshView(theContentProvider);
     }
 
@@ -265,24 +274,17 @@ public class HydraResultsView extends ViewPart {
 
     private SymbolTreeContentProvider createSymbolTreeContentProvider(boolean isShowCurrentType, boolean isShowSystemGroup) {
         final SymbolTreeContentProvider theContentProvider;
-        if(myResultData.getResultFile() != null) {
-            setTitleToolTip(myResultData.getResultFile().getName());
-
-            if(isShowCurrentType) {
-                IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-                if(theActiveEditor instanceof CompilationUnitEditor) {
-                    theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(theActiveEditor);
-                } else {
-                    theContentProvider = createEmptyContentProvider();
-                }
-            } else if(isShowSystemGroup) {
-                theContentProvider = createUnusedSymbolsGroupedBySystemModuleContentProvider(myResultData);
+        if(isShowCurrentType) {
+            IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+            if(theActiveEditor instanceof CompilationUnitEditor) {
+                theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(theActiveEditor);
             } else {
-                theContentProvider = createUnusedSymbolsContentProvider(myResultData);
+                theContentProvider = createEmptyContentProvider();
             }
+        } else if(isShowSystemGroup) {
+            theContentProvider = createUnusedSymbolsGroupedBySystemModuleContentProvider(myResultData);
         } else {
-            setTitleToolTip("");
-            theContentProvider = createEmptyContentProvider();
+            theContentProvider = createUnusedSymbolsContentProvider(myResultData);
         }
         return theContentProvider;
     }
