@@ -309,11 +309,7 @@ public class HydraResultsView extends ViewPart {
                     IEclipsePreferences thePreferences = InstanceScope.INSTANCE.getNode(HydraResultsView.class.getName());
                     thePreferences.putBoolean(HydradarPlugin.PROPERTY_SHOW_ONLY_CURRENT_TYPE, theSetting);
                     thePreferences.putBoolean(HydradarPlugin.PROPERTY_SYSTEM_MODULE_GROUP, mySystemModuleGroupToggleAction.isChecked()); //it is changed above
-                    try {
-                        thePreferences.flush();
-                    } catch(BackingStoreException e) {
-                        throw new HydradarRuntimeException("Error on saving preferences!", e);
-                    }
+                    savePreferences(thePreferences);
                 }
             }
         });
@@ -329,27 +325,19 @@ public class HydraResultsView extends ViewPart {
                     }
                     IEclipsePreferences thePreferences = InstanceScope.INSTANCE.getNode(HydraResultsView.class.getName());
                     thePreferences.putBoolean(HydradarPlugin.PROPERTY_SYSTEM_MODULE_GROUP, theSetting);
-                    try {
-                        thePreferences.flush();
-                    } catch(BackingStoreException e) {
-                        throw new HydradarRuntimeException("Error on saving preferences!", e);
-                    }
+                    savePreferences(thePreferences);
                 }
             }
         });
 
-        IToolBarManager theToolBarManager = getViewSite().getActionBars().getToolBarManager();
-        theToolBarManager.add(myShowCurrentTypeAction);
-        theToolBarManager.add(mySystemModuleGroupToggleAction);
-
         IEclipsePreferences thePreferences = InstanceScope.INSTANCE.getNode(HydraResultsView.class.getName());
         myShowCurrentTypeAction.setChecked(thePreferences.getBoolean(HydradarPlugin.PROPERTY_SHOW_ONLY_CURRENT_TYPE, false));
         mySystemModuleGroupToggleAction.setChecked(thePreferences.getBoolean(HydradarPlugin.PROPERTY_SYSTEM_MODULE_GROUP, false));
-        try {
-            thePreferences.flush();
-        } catch(BackingStoreException e) {
-            throw new HydradarRuntimeException("Error on saving preferences!", e);
-        }
+        savePreferences(thePreferences);
+
+        IToolBarManager theToolBarManager = getViewSite().getActionBars().getToolBarManager();
+        theToolBarManager.add(myShowCurrentTypeAction);
+        theToolBarManager.add(mySystemModuleGroupToggleAction);
     }
 
     public void setFocus() {
@@ -370,6 +358,14 @@ public class HydraResultsView extends ViewPart {
             }
         }
         return theTreeCategoryItems;
+    }
+
+    private void savePreferences(IEclipsePreferences aPreferences) {
+        try {
+            aPreferences.flush();
+        } catch(BackingStoreException e) {
+            throw new HydradarRuntimeException("Error on saving preferences!", e);
+        }
     }
 
     private class TreeCategoryLabelProvider extends LabelProvider
