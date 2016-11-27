@@ -15,6 +15,7 @@ import de.novanic.hydradar.io.data.ResultData;
 import de.novanic.hydradar.view.results.content.SymbolTreeContentProvider;
 import de.novanic.hydradar.view.results.content.SymbolTreeContentProviderFactory;
 import de.novanic.hydradar.view.util.IconLoader;
+import org.eclipse.e4.core.services.events.IEventBroker;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.*;
@@ -30,11 +31,15 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.ViewPart;
+import org.osgi.service.event.Event;
+import org.osgi.service.event.EventHandler;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HydraResultsView extends ViewPart {
+public class HydraResultsView extends ViewPart implements EventHandler {
+
+    private static final String EVENT_GRAPH_REFRESH = "hyruleGraphRefresh";
 
     private final Image IMAGE_ICON = IconLoader.loadImage("obj16/brkpi_obj.png");
     private final Image IMAGE_IDEA = IconLoader.loadImage("elcl16/smartmode_co.png");
@@ -44,7 +49,12 @@ public class HydraResultsView extends ViewPart {
     private HydraResultsToolbar myResultsToolbar;
     private SymbolTreeContentProviderFactory mySymbolTreeContentProviderFactory;
 
+    private IEventBroker myEventBroker;
+
     public void createPartControl(Composite aParent) {
+        myEventBroker = PlatformUI.getWorkbench().getService(IEventBroker.class);
+        myEventBroker.subscribe(EVENT_GRAPH_REFRESH, this);
+
         mySymbolTreeContentProviderFactory = SymbolTreeContentProviderFactory.getInstance();
 
         myResultsTree = createResultsTree(aParent, getSite());
@@ -130,8 +140,21 @@ public class HydraResultsView extends ViewPart {
     }
 
     public void reload() {
-        myResultData = new HydraResultsImporter().load();
+        myResultsToolbar.disable();
 
+        Runnable theReloadRunnable = new Runnable() {
+            @Override
+            public void run() {
+                myResultData = new HydraResultsImporter().load();
+
+                myEventBroker.send(EVENT_GRAPH_REFRESH,null);
+            }
+        };
+        new Thread(theReloadRunnable).start();
+    }
+
+    @Override
+    public void handleEvent(Event aEvent) {
         final SymbolTreeContentProvider theContentProvider;
         if(myResultData.getResultFile() != null) {
             setTitleToolTip(myResultData.getResultFile().getName());
@@ -146,6 +169,7 @@ public class HydraResultsView extends ViewPart {
             theContentProvider = mySymbolTreeContentProviderFactory.createEmptyContentProvider();
         }
         refreshView(theContentProvider);
+        myResultsToolbar.enable();
     }
 
     private void refreshView(SymbolTreeContentProvider aContentProvider) {

@@ -100,6 +100,19 @@ public class HydraResultsToolbar
         aToolBarManager.add(mySystemModuleGroupToggleAction);
     }
 
+    public void enable() {
+        setEnabled(true);
+    }
+
+    public void disable() {
+        setEnabled(false);
+    }
+
+    private void setEnabled(boolean isEnabled) {
+        myShowCurrentTypeAction.setEnabled(isEnabled);
+        mySystemModuleGroupToggleAction.setEnabled(isEnabled);
+    }
+
     public void addListener(HydraResultsToolbarListener aListener) {
         myListeners.add(aListener);
     }
