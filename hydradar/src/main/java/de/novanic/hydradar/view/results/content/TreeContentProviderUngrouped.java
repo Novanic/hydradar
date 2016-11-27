@@ -21,6 +21,7 @@ import org.eclipse.ui.internal.ViewSite;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * @author sstrohschein
@@ -40,11 +41,20 @@ public class TreeContentProviderUngrouped extends AbstractTreeContentProvider
     private final SortedSet<MethodSymbol> myUselessMethods;
     private final SortedSet<VariableSymbol> myUnusedVariables;
 
+    public TreeContentProviderUngrouped() {
+        this(new TreeSet<PackageSymbol>(), new TreeSet<TypeSymbol>(), new TreeSet<MethodSymbol>(), new TreeSet<MethodSymbol>(), new TreeSet<VariableSymbol>());
+    }
+
     public TreeContentProviderUngrouped(SortedSet<PackageSymbol> aUnusedPackages,
                                         SortedSet<TypeSymbol> aUnusedTypes,
                                         SortedSet<MethodSymbol> aUnusedMethods,
                                         SortedSet<MethodSymbol> aUselessMethods,
                                         SortedSet<VariableSymbol> aUnusedVariables) {
+        super(aUnusedPackages.isEmpty()
+                && aUnusedTypes.isEmpty()
+                && aUnusedMethods.isEmpty()
+                && aUselessMethods.isEmpty()
+                && aUnusedVariables.isEmpty());
         myUnusedPackages = aUnusedPackages;
         myUnusedTypes = aUnusedTypes;
         myUnusedMethods = aUnusedMethods;

@@ -13,7 +13,6 @@ package de.novanic.hydradar.view.results.content;
 import de.novanic.hydradar.io.data.symbol.Symbol;
 import de.novanic.hydradar.view.results.TreeCategoryItem;
 import de.novanic.hydradar.view.results.content.category.TreeCategory;
-import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 import java.util.Collection;
@@ -23,8 +22,19 @@ import java.util.Collection;
  *         <br>Date: 04.09.2016
  *         <br>Time: 15:07
  */
-abstract class AbstractTreeContentProvider implements ITreeContentProvider
+abstract class AbstractTreeContentProvider implements SymbolTreeContentProvider
 {
+    private final boolean isEmpty;
+
+    public AbstractTreeContentProvider(boolean aIsEmpty) {
+        isEmpty = aIsEmpty;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return isEmpty;
+    }
+
     @Override
     public Object[] getElements(Object aObject) {
         return getChildren(aObject);

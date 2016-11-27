@@ -30,6 +30,11 @@ public class TreeContentProviderGrouped extends AbstractTreeContentProvider
     private final ResultData myResultData;
 
     public TreeContentProviderGrouped(ResultData aResultData) {
+        super(aResultData.getUnusedPackages().isEmpty()
+                && aResultData.getUnusedTypes().isEmpty()
+                && aResultData.getUnusedMethods().isEmpty()
+                && aResultData.getUselessMethods().isEmpty()
+                && aResultData.getUnusedVariables().isEmpty());
         myResultData = aResultData;
     }
 

@@ -18,6 +18,7 @@ import de.novanic.hydradar.io.data.symbol.MethodSymbol;
 import de.novanic.hydradar.io.data.symbol.PackageSymbol;
 import de.novanic.hydradar.io.data.symbol.TypeSymbol;
 import de.novanic.hydradar.io.data.symbol.VariableSymbol;
+import de.novanic.hydradar.view.results.content.SymbolTreeContentProvider;
 import de.novanic.hydradar.view.results.content.TreeContentProviderGrouped;
 import de.novanic.hydradar.view.results.content.TreeContentProviderUngrouped;
 import de.novanic.hydradar.view.results.content.category.TreeCategory;
@@ -119,9 +120,11 @@ public class HydraResultsView extends ViewPart {
             public void partBroughtToTop(IWorkbenchPart aWorkbenchPart) {
                 if(myResultsToolbar.isShowCurrentTypeActionChecked() && aWorkbenchPart instanceof IEditorPart) {
                     if(aWorkbenchPart instanceof CompilationUnitEditor) {
-                        attachUnusedSymbolsOfActiveType((IEditorPart)aWorkbenchPart);
+                        SymbolTreeContentProvider theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider((IEditorPart)aWorkbenchPart);
+                        refreshView(theContentProvider);
                     } else {
-                        attachUnusedSymbolsEmpty(myResultsTree);
+                        SymbolTreeContentProvider theEmptyContentProvider = createEmptyContentProvider();
+                        refreshView(theEmptyContentProvider);
                     }
                 }
             }
@@ -142,42 +145,49 @@ public class HydraResultsView extends ViewPart {
         if(myResultData.getResultFile() != null) {
             setTitleToolTip(myResultData.getResultFile().getName());
 
-            attachUnusedSymbols(myResultData, myResultsTree);
+            SymbolTreeContentProvider theContentProvider = createUnusedSymbolsContentProvider(myResultData);
+            refreshView(theContentProvider);
         } else {
             setTitleToolTip("");
         }
     }
 
-    private void attachUnusedSymbols(ResultData aResultData, FilteredTree aResultsTree) {
-
-        displayUnusedSymbols(aResultsTree,
-                aResultData.getUnusedPackages(),
+    private SymbolTreeContentProvider createUnusedSymbolsContentProvider(ResultData aResultData) {
+        return new TreeContentProviderUngrouped(aResultData.getUnusedPackages(),
                 aResultData.getUnusedTypes(),
                 aResultData.getUnusedMethods(),
                 aResultData.getUselessMethods(),
                 aResultData.getUnusedVariables());
     }
 
-    private void attachUnusedSymbolsGroupedBySystemModule(ResultData aResultData, FilteredTree aResultsTree) {
-        displayUnusedSymbols(aResultsTree, aResultData);
+    private SymbolTreeContentProvider createUnusedSymbolsGroupedBySystemModuleContentProvider(ResultData aResultData) {
+        return new TreeContentProviderGrouped(aResultData);
     }
 
-    private void attachUnusedSymbolsOfActiveType(IEditorPart aWorkbenchPart) {
+    private SymbolTreeContentProvider createUnusedSymbolsOfActiveTypeContentProvider(IEditorPart aWorkbenchPart) {
         ITypeRoot theType = EditorUtility.getEditorInputJavaElement(aWorkbenchPart, false);
         if(theType != null) {
             IType thePrimaryType = theType.findPrimaryType();
             if(thePrimaryType != null) {
                 String theTypeName = thePrimaryType.getFullyQualifiedName();
-                attachUnusedSymbolsOfType(theTypeName, myResultData, myResultsTree);
-            } else {
-                attachUnusedSymbolsEmpty(myResultsTree);
+                return createUnusedSymbolsOfTypeContentProvider(theTypeName, myResultData);
             }
+        }
+        return createEmptyContentProvider();
+    }
+
+    private void refreshView(SymbolTreeContentProvider aContentProvider) {
+        myResultsTree.getViewer().setContentProvider(aContentProvider);
+        myResultsTree.getViewer().setInput(getViewSite());
+        if(myResultsToolbar.isShowCurrentTypeActionChecked() && !aContentProvider.isEmpty()) {
+            setTitleImage(IMAGE_IDEA);
+            myResultsTree.getViewer().expandAll();
         } else {
-            attachUnusedSymbolsEmpty(myResultsTree);
+            setTitleImage(IMAGE_ICON);
         }
     }
 
-    private void attachUnusedSymbolsOfType(String aTypeName, ResultData aResultData, FilteredTree aResultsTree) {
+    private SymbolTreeContentProvider createUnusedSymbolsOfTypeContentProvider(String aTypeName, ResultData aResultData) {
         SortedSet<PackageSymbol> theUnusedPackages = new TreeSet<>();
         SortedSet<TypeSymbol> theUnusedTypes = new TreeSet<>();
         SortedSet<MethodSymbol> theUnusedMethods = new TreeSet<>();
@@ -214,44 +224,11 @@ public class HydraResultsView extends ViewPart {
             }
         }
 
-        displayUnusedSymbols(aResultsTree,
-                theUnusedPackages,
-                theUnusedTypes,
-                theUnusedMethods,
-                theUselessMethods,
-                theUnusedVariables);
-
-        aResultsTree.getViewer().expandAll();
+        return new TreeContentProviderUngrouped(theUnusedPackages, theUnusedTypes, theUnusedMethods, theUselessMethods, theUnusedVariables);
     }
 
-    private void attachUnusedSymbolsEmpty(FilteredTree aResultsTree) {
-        displayUnusedSymbols(aResultsTree, new TreeSet<PackageSymbol>(), new TreeSet<TypeSymbol>(), new TreeSet<MethodSymbol>(), new TreeSet<MethodSymbol>(), new TreeSet<VariableSymbol>());
-    }
-
-    private void displayUnusedSymbols(FilteredTree aResultsTree, ResultData aResultData) {
-
-        setTitleImage(IMAGE_ICON);
-
-        aResultsTree.getViewer().setContentProvider(new TreeContentProviderGrouped(aResultData));
-        aResultsTree.getViewer().setInput(getViewSite());
-    }
-
-    private void displayUnusedSymbols(FilteredTree aResultsTree,
-                                      SortedSet<PackageSymbol> aUnusedPackages,
-                                      SortedSet<TypeSymbol> aUnusedTypes,
-                                      SortedSet<MethodSymbol> aUnusedMethods,
-                                      SortedSet<MethodSymbol> aUselessMethods,
-                                      SortedSet<VariableSymbol> aUnusedVariables) {
-
-        if(myResultsToolbar.isShowCurrentTypeActionChecked()
-                && (!aUnusedPackages.isEmpty() || !aUnusedTypes.isEmpty() || !aUnusedMethods.isEmpty() || !aUnusedVariables.isEmpty())) {
-            setTitleImage(IMAGE_IDEA);
-        } else {
-            setTitleImage(IMAGE_ICON);
-        }
-
-        aResultsTree.getViewer().setContentProvider(new TreeContentProviderUngrouped(aUnusedPackages, aUnusedTypes, aUnusedMethods, aUselessMethods, aUnusedVariables));
-        aResultsTree.getViewer().setInput(getViewSite());
+    private SymbolTreeContentProvider createEmptyContentProvider() {
+        return new TreeContentProviderUngrouped();
     }
 
     private HydraResultsToolbar attachToolbar() {
@@ -264,19 +241,23 @@ public class HydraResultsView extends ViewPart {
                 if(isShowCurrentType) {
                     IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
                     if(theActiveEditor instanceof CompilationUnitEditor) {
-                        attachUnusedSymbolsOfActiveType(theActiveEditor);
+                        SymbolTreeContentProvider theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(theActiveEditor);
+                        refreshView(theContentProvider);
                     }
                 } else {
-                    attachUnusedSymbols(myResultData, myResultsTree);
+                    SymbolTreeContentProvider theContentProvider = createUnusedSymbolsContentProvider(myResultData);
+                    refreshView(theContentProvider);
                 }
             }
 
             @Override
             public void onToggleSystemModuleGroup(boolean isShowSystemGroup) {
                 if(isShowSystemGroup) {
-                    attachUnusedSymbolsGroupedBySystemModule(myResultData, myResultsTree);
+                    SymbolTreeContentProvider theContentProvider = createUnusedSymbolsGroupedBySystemModuleContentProvider(myResultData);
+                    refreshView(theContentProvider);
                 } else {
-                    attachUnusedSymbols(myResultData, myResultsTree);
+                    SymbolTreeContentProvider theContentProvider = createUnusedSymbolsContentProvider(myResultData);
+                    refreshView(theContentProvider);
                 }
             }
         });
