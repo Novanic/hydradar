@@ -10,6 +10,11 @@
  */
 package de.novanic.hydradar.io.data;
 
+import de.novanic.hydradar.io.data.symbol.MethodSymbol;
+import de.novanic.hydradar.io.data.symbol.PackageSymbol;
+import de.novanic.hydradar.io.data.symbol.TypeSymbol;
+import de.novanic.hydradar.io.data.symbol.VariableSymbol;
+
 import java.io.File;
 import java.util.*;
 
@@ -44,40 +49,40 @@ public class ResultData
         return new ArrayList<>(mySystemDataEntries.values());
     }
 
-    public List<String> getUnusedPackages() {
-        SortedSet<String> theUnusedPackages = new TreeSet<>();
+    public List<PackageSymbol> getUnusedPackages() {
+        SortedSet<PackageSymbol> theUnusedPackages = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUnusedPackages.addAll(theSystemData.getUnusedPackages());
         }
         return new ArrayList<>(theUnusedPackages);
     }
 
-    public List<String> getUnusedTypes() {
-        SortedSet<String> theUnusedTypes = new TreeSet<>();
+    public List<TypeSymbol> getUnusedTypes() {
+        SortedSet<TypeSymbol> theUnusedTypes = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUnusedTypes.addAll(theSystemData.getUnusedTypes());
         }
         return new ArrayList<>(theUnusedTypes);
     }
 
-    public List<String> getUnusedMethods() {
-        SortedSet<String> theUnusedMethods = new TreeSet<>();
+    public List<MethodSymbol> getUnusedMethods() {
+        SortedSet<MethodSymbol> theUnusedMethods = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUnusedMethods.addAll(theSystemData.getUnusedMethods());
         }
         return new ArrayList<>(theUnusedMethods);
     }
 
-    public List<String> getUselessMethods() {
-        SortedSet<String> theUselessMethods = new TreeSet<>();
+    public List<MethodSymbol> getUselessMethods() {
+        SortedSet<MethodSymbol> theUselessMethods = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUselessMethods.addAll(theSystemData.getUselessMethods());
         }
         return new ArrayList<>(theUselessMethods);
     }
 
-    public List<String> getUnusedVariables() {
-        SortedSet<String> theUnusedVariables = new TreeSet<>();
+    public List<VariableSymbol> getUnusedVariables() {
+        SortedSet<VariableSymbol> theUnusedVariables = new TreeSet<>();
         for(ResultSystemData theSystemData: getSystemDataEntries()) {
             theUnusedVariables.addAll(theSystemData.getUnusedVariables());
         }

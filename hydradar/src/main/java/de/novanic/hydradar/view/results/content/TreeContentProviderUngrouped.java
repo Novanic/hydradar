@@ -10,6 +10,10 @@
  */
 package de.novanic.hydradar.view.results.content;
 
+import de.novanic.hydradar.io.data.symbol.MethodSymbol;
+import de.novanic.hydradar.io.data.symbol.PackageSymbol;
+import de.novanic.hydradar.io.data.symbol.TypeSymbol;
+import de.novanic.hydradar.io.data.symbol.VariableSymbol;
 import de.novanic.hydradar.view.results.TreeCategoryItem;
 import de.novanic.hydradar.view.results.content.category.*;
 import org.eclipse.ui.internal.ViewSite;
@@ -29,17 +33,17 @@ public class TreeContentProviderUngrouped extends AbstractTreeContentProvider
     private final MethodsTreeCategory myMethodsTreeCategory;
     private final UselessMethodsTreeCategory myUselessMethodsTreeCategory;
     private final VariablesTreeCategory myVariablesTreeCategory;
-    private final List<String> myUnusedPackages;
-    private final List<String> myUnusedTypes;
-    private final List<String> myUnusedMethods;
-    private final List<String> myUselessMethods;
-    private final List<String> myUnusedVariables;
+    private final List<PackageSymbol> myUnusedPackages;
+    private final List<TypeSymbol> myUnusedTypes;
+    private final List<MethodSymbol> myUnusedMethods;
+    private final List<MethodSymbol> myUselessMethods;
+    private final List<VariableSymbol> myUnusedVariables;
 
-    public TreeContentProviderUngrouped(List<String> aUnusedPackages,
-                                         List<String> aUnusedTypes,
-                                         List<String> aUnusedMethods,
-                                         List<String> aUselessMethods,
-                                         List<String> aUnusedVariables) {
+    public TreeContentProviderUngrouped(List<PackageSymbol> aUnusedPackages,
+                                         List<TypeSymbol> aUnusedTypes,
+                                         List<MethodSymbol> aUnusedMethods,
+                                         List<MethodSymbol> aUselessMethods,
+                                         List<VariableSymbol> aUnusedVariables) {
         myUnusedPackages = aUnusedPackages;
         myUnusedTypes = aUnusedTypes;
         myUnusedMethods = aUnusedMethods;

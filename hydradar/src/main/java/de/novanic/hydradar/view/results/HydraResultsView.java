@@ -16,7 +16,10 @@ import de.novanic.hydradar.io.HydraResultsImporter;
 import de.novanic.hydradar.io.data.ResultData;
 import de.novanic.hydradar.io.data.ResultModuleData;
 import de.novanic.hydradar.io.data.ResultSystemData;
-import de.novanic.hydradar.util.ClassNameExtractor;
+import de.novanic.hydradar.io.data.symbol.MethodSymbol;
+import de.novanic.hydradar.io.data.symbol.PackageSymbol;
+import de.novanic.hydradar.io.data.symbol.TypeSymbol;
+import de.novanic.hydradar.io.data.symbol.VariableSymbol;
 import de.novanic.hydradar.view.results.content.TreeContentProviderGrouped;
 import de.novanic.hydradar.view.results.content.TreeContentProviderUngrouped;
 import de.novanic.hydradar.view.results.content.category.TreeCategory;
@@ -184,45 +187,39 @@ public class HydraResultsView extends ViewPart {
     }
 
     private void attachUnusedSymbolsOfType(String aTypeName, ResultData aResultData, FilteredTree aResultsTree) {
-        SortedSet<String> theUnusedPackages = new TreeSet<>();
-        SortedSet<String> theUnusedTypes = new TreeSet<>();
-        SortedSet<String> theUnusedMethods = new TreeSet<>();
-        SortedSet<String> theUselessMethods = new TreeSet<>();
-        SortedSet<String> theUnusedVariables = new TreeSet<>();
+        SortedSet<PackageSymbol> theUnusedPackages = new TreeSet<>();
+        SortedSet<TypeSymbol> theUnusedTypes = new TreeSet<>();
+        SortedSet<MethodSymbol> theUnusedMethods = new TreeSet<>();
+        SortedSet<MethodSymbol> theUselessMethods = new TreeSet<>();
+        SortedSet<VariableSymbol> theUnusedVariables = new TreeSet<>();
 
         int thePackageEndPos = aTypeName.lastIndexOf('.');
         if(thePackageEndPos >= 0) {
             String thePackage = aTypeName.substring(0, thePackageEndPos + 1);
-            for(String theUnusedPackage: aResultData.getUnusedPackages()) {
-                if(thePackage.startsWith(theUnusedPackage)) {
+            for(PackageSymbol theUnusedPackage: aResultData.getUnusedPackages()) {
+                if(thePackage.startsWith(theUnusedPackage.getSymbolName())) {
                     theUnusedPackages.add(theUnusedPackage);
                 }
             }
         }
-        for(String theUnusedType: aResultData.getUnusedTypes()) {
-            if(theUnusedType.contains(aTypeName) && aTypeName.equals(ClassNameExtractor.extractClassName(theUnusedType, false, false, -1))) {
+        for(TypeSymbol theUnusedType: aResultData.getUnusedTypes()) {
+            if(aTypeName.equals(theUnusedType.getEnclosingTypeName())) {
                 theUnusedTypes.add(theUnusedType);
             }
         }
-        for(String theUnusedMethod: aResultData.getUnusedMethods()) {
-            if(theUnusedMethod.contains(aTypeName)) {
-                if(aTypeName.equals(ClassNameExtractor.extractClassName(theUnusedMethod, true, false))) {
-                    theUnusedMethods.add(theUnusedMethod);
-                }
+        for(MethodSymbol theUnusedMethod: aResultData.getUnusedMethods()) {
+            if(aTypeName.equals(theUnusedMethod.getTypeName())) {
+                theUnusedMethods.add(theUnusedMethod);
             }
         }
-        for(String theUselessMethod: aResultData.getUselessMethods()) {
-            if(theUselessMethod.contains(aTypeName)) {
-                if(aTypeName.equals(ClassNameExtractor.extractClassName(theUselessMethod, true, false))) {
-                    theUselessMethods.add(theUselessMethod);
-                }
+        for(MethodSymbol theUselessMethod: aResultData.getUselessMethods()) {
+            if(aTypeName.equals(theUselessMethod.getTypeName())) {
+                theUselessMethods.add(theUselessMethod);
             }
         }
-        for(String theUnusedVariable: aResultData.getUnusedVariables()) {
-            if(theUnusedVariable.contains(aTypeName)) {
-                if(aTypeName.equals(ClassNameExtractor.extractClassName(theUnusedVariable, false, true))) {
-                    theUnusedVariables.add(theUnusedVariable);
-                }
+        for(VariableSymbol theUnusedVariable: aResultData.getUnusedVariables()) {
+            if(aTypeName.equals(theUnusedVariable.getTypeName())) {
+                theUnusedVariables.add(theUnusedVariable);
             }
         }
 
@@ -237,7 +234,7 @@ public class HydraResultsView extends ViewPart {
     }
 
     private void attachUnusedSymbolsEmpty(FilteredTree aResultsTree) {
-        displayUnusedSymbols(aResultsTree, new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>(), new ArrayList<String>());
+        displayUnusedSymbols(aResultsTree, new ArrayList<PackageSymbol>(), new ArrayList<TypeSymbol>(), new ArrayList<MethodSymbol>(), new ArrayList<MethodSymbol>(), new ArrayList<VariableSymbol>());
     }
 
     private void displayUnusedSymbols(FilteredTree aResultsTree, ResultData aResultData) {
@@ -250,11 +247,11 @@ public class HydraResultsView extends ViewPart {
     }
 
     private void displayUnusedSymbols(FilteredTree aResultsTree,
-                                      List<String> aUnusedPackages,
-                                      List<String> aUnusedTypes,
-                                      List<String> aUnusedMethods,
-                                      List<String> aUselessMethods,
-                                      List<String> aUnusedVariables) {
+                                      List<PackageSymbol> aUnusedPackages,
+                                      List<TypeSymbol> aUnusedTypes,
+                                      List<MethodSymbol> aUnusedMethods,
+                                      List<MethodSymbol> aUselessMethods,
+                                      List<VariableSymbol> aUnusedVariables) {
 
         if(myShowCurrentTypeAction != null && myShowCurrentTypeAction.isChecked()
                 && (!aUnusedPackages.isEmpty() || !aUnusedTypes.isEmpty() || !aUnusedMethods.isEmpty() || !aUnusedVariables.isEmpty())) {

@@ -10,6 +10,11 @@
  */
 package de.novanic.hydradar.io.data;
 
+import de.novanic.hydradar.io.data.symbol.MethodSymbol;
+import de.novanic.hydradar.io.data.symbol.PackageSymbol;
+import de.novanic.hydradar.io.data.symbol.TypeSymbol;
+import de.novanic.hydradar.io.data.symbol.VariableSymbol;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -24,11 +29,11 @@ public class ResultModuleData
 {
     private final ResultSystemData myResultSystemData;
     private final String myName;
-    private final SortedSet<String> myUnusedPackages;
-    private final SortedSet<String> myUnusedTypes;
-    private final SortedSet<String> myUnusedMethods;
-    private final SortedSet<String> myUselessMethods;
-    private final SortedSet<String> myUnusedVariables;
+    private final SortedSet<PackageSymbol> myUnusedPackages;
+    private final SortedSet<TypeSymbol> myUnusedTypes;
+    private final SortedSet<MethodSymbol> myUnusedMethods;
+    private final SortedSet<MethodSymbol> myUselessMethods;
+    private final SortedSet<VariableSymbol> myUnusedVariables;
 
     public ResultModuleData(ResultSystemData aResultSystemData, String aName) {
         myResultSystemData = aResultSystemData;
@@ -48,43 +53,43 @@ public class ResultModuleData
         return myName;
     }
 
-    public void addUnusedPackage(String aPackage) {
+    public void addUnusedPackage(PackageSymbol aPackage) {
         myUnusedPackages.add(aPackage);
     }
 
-    public List<String> getUnusedPackages() {
+    public List<PackageSymbol> getUnusedPackages() {
         return new ArrayList<>(myUnusedPackages);
     }
 
-    public void addUnusedType(String aType) {
+    public void addUnusedType(TypeSymbol aType) {
         myUnusedTypes.add(aType);
     }
 
-    public List<String> getUnusedTypes() {
+    public List<TypeSymbol> getUnusedTypes() {
         return new ArrayList<>(myUnusedTypes);
     }
 
-    public void addUnusedMethod(String aMethod) {
+    public void addUnusedMethod(MethodSymbol aMethod) {
         myUnusedMethods.add(aMethod);
     }
 
-    public List<String> getUnusedMethods() {
+    public List<MethodSymbol> getUnusedMethods() {
         return new ArrayList<>(myUnusedMethods);
     }
 
-    public void addUselessMethod(String aMethod) {
+    public void addUselessMethod(MethodSymbol aMethod) {
         myUselessMethods.add(aMethod);
     }
 
-    public List<String> getUselessMethods() {
+    public List<MethodSymbol> getUselessMethods() {
         return new ArrayList<>(myUselessMethods);
     }
 
-    public void addUnusedVariable(String aVariable) {
+    public void addUnusedVariable(VariableSymbol aVariable) {
         myUnusedVariables.add(aVariable);
     }
 
-    public List<String> getUnusedVariables() {
+    public List<VariableSymbol> getUnusedVariables() {
         return new ArrayList<>(myUnusedVariables);
     }
 

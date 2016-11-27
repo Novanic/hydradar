@@ -15,6 +15,10 @@ import de.novanic.hydradar.HydradarRuntimeException;
 import de.novanic.hydradar.io.data.ResultData;
 import de.novanic.hydradar.io.data.ResultModuleData;
 import de.novanic.hydradar.io.data.ResultSystemData;
+import de.novanic.hydradar.io.data.symbol.MethodSymbol;
+import de.novanic.hydradar.io.data.symbol.PackageSymbol;
+import de.novanic.hydradar.io.data.symbol.TypeSymbol;
+import de.novanic.hydradar.io.data.symbol.VariableSymbol;
 
 import java.io.*;
 import java.util.TreeMap;
@@ -71,19 +75,19 @@ public class HydraResultsImporter
                     theCurrentResultModuleData = new ResultModuleData(theResultSystemData, theModule);
                     theResultSystemData.addModuleData(theCurrentResultModuleData);
                 } else if(theLine.startsWith("Unused package: ")) {
-                    theCurrentResultModuleData.addUnusedPackage(theLine.substring("Unused package: ".length(), theLine.length()));
+                    theCurrentResultModuleData.addUnusedPackage(new PackageSymbol(theLine.substring("Unused package: ".length(), theLine.length())));
                 } else if(theLine.startsWith("Unused class: ")) {
-                    theCurrentResultModuleData.addUnusedType(theLine.substring("Unused class: ".length(), theLine.length()));
+                    theCurrentResultModuleData.addUnusedType(new TypeSymbol(theLine.substring("Unused class: ".length(), theLine.length())));
                 } else if(theLine.startsWith("Unused constructor: ")) {
-                    theCurrentResultModuleData.addUnusedMethod(theLine.substring("Unused constructor: ".length(), theLine.length()));
+                    theCurrentResultModuleData.addUnusedMethod(new MethodSymbol(theLine.substring("Unused constructor: ".length(), theLine.length())));
                 } else if(theLine.startsWith("Useless constructor: ")) {
-                    theCurrentResultModuleData.addUselessMethod(theLine.substring("Useless constructor: ".length(), theLine.length()));
+                    theCurrentResultModuleData.addUselessMethod(new MethodSymbol(theLine.substring("Useless constructor: ".length(), theLine.length())));
                 } else if(theLine.startsWith("Unused method: ")) {
-                    theCurrentResultModuleData.addUnusedMethod(theLine.substring("Unused method: ".length(), theLine.length()));
+                    theCurrentResultModuleData.addUnusedMethod(new MethodSymbol(theLine.substring("Unused method: ".length(), theLine.length())));
                 } else if(theLine.startsWith("Useless method: ")) {
-                    theCurrentResultModuleData.addUselessMethod(theLine.substring("Useless method: ".length(), theLine.length()));
+                    theCurrentResultModuleData.addUselessMethod(new MethodSymbol(theLine.substring("Useless method: ".length(), theLine.length())));
                 } else if(theLine.startsWith("Unused variable: ")) {
-                    theCurrentResultModuleData.addUnusedVariable(theLine.substring("Unused variable: ".length(), theLine.length()));
+                    theCurrentResultModuleData.addUnusedVariable(new VariableSymbol(theLine.substring("Unused variable: ".length(), theLine.length())));
                 }
             }
         }

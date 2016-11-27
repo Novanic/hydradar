@@ -10,6 +10,11 @@
  */
 package de.novanic.hydradar.io.data;
 
+import de.novanic.hydradar.io.data.symbol.MethodSymbol;
+import de.novanic.hydradar.io.data.symbol.PackageSymbol;
+import de.novanic.hydradar.io.data.symbol.TypeSymbol;
+import de.novanic.hydradar.io.data.symbol.VariableSymbol;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedSet;
@@ -42,40 +47,40 @@ public class ResultSystemData
         return myModuleDataEntries;
     }
 
-    public List<String> getUnusedPackages() {
-        SortedSet<String> theUnusedPackages = new TreeSet<>();
+    public List<PackageSymbol> getUnusedPackages() {
+        SortedSet<PackageSymbol> theUnusedPackages = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUnusedPackages.addAll(theModuleData.getUnusedPackages());
         }
         return new ArrayList<>(theUnusedPackages);
     }
 
-    public List<String> getUnusedTypes() {
-        SortedSet<String> theUnusedTypes = new TreeSet<>();
+    public List<TypeSymbol> getUnusedTypes() {
+        SortedSet<TypeSymbol> theUnusedTypes = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUnusedTypes.addAll(theModuleData.getUnusedTypes());
         }
         return new ArrayList<>(theUnusedTypes);
     }
 
-    public List<String> getUnusedMethods() {
-        SortedSet<String> theUnusedMethods = new TreeSet<>();
+    public List<MethodSymbol> getUnusedMethods() {
+        SortedSet<MethodSymbol> theUnusedMethods = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUnusedMethods.addAll(theModuleData.getUnusedMethods());
         }
         return new ArrayList<>(theUnusedMethods);
     }
 
-    public List<String> getUselessMethods() {
-        SortedSet<String> theUselessMethods = new TreeSet<>();
+    public List<MethodSymbol> getUselessMethods() {
+        SortedSet<MethodSymbol> theUselessMethods = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUselessMethods.addAll(theModuleData.getUselessMethods());
         }
         return new ArrayList<>(theUselessMethods);
     }
 
-    public List<String> getUnusedVariables() {
-        SortedSet<String> theUnusedVariables = new TreeSet<>();
+    public List<VariableSymbol> getUnusedVariables() {
+        SortedSet<VariableSymbol> theUnusedVariables = new TreeSet<>();
         for(ResultModuleData theModuleData: myModuleDataEntries) {
             theUnusedVariables.addAll(theModuleData.getUnusedVariables());
         }

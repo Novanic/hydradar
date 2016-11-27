@@ -10,6 +10,7 @@
  */
 package de.novanic.hydradar.view.results.content;
 
+import de.novanic.hydradar.io.data.symbol.Symbol;
 import de.novanic.hydradar.view.results.TreeCategoryItem;
 import de.novanic.hydradar.view.results.content.category.TreeCategory;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -44,11 +45,11 @@ abstract class AbstractTreeContentProvider implements ITreeContentProvider
 
     }
 
-    protected TreeCategoryItem[] createArray(List<String> aIDs, TreeCategory aTreeCategory) {
-        TreeCategoryItem[] theTreeCategoryItems = new TreeCategoryItem[aIDs.size()];
+    protected TreeCategoryItem[] createArray(List<? extends Symbol> aSymbols, TreeCategory aTreeCategory) {
+        TreeCategoryItem[] theTreeCategoryItems = new TreeCategoryItem[aSymbols.size()];
         int i = 0;
-        for(String theID: aIDs) {
-            theTreeCategoryItems[i] = new TreeCategoryItem(theID, aTreeCategory);
+        for(Symbol theSymbol: aSymbols) {
+            theTreeCategoryItems[i] = new TreeCategoryItem(theSymbol.getSymbolName(), aTreeCategory);
             i++;
         }
         return theTreeCategoryItems;
