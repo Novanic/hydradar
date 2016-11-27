@@ -6,11 +6,6 @@ import de.novanic.hydradar.io.data.symbol.PackageSymbol;
 import de.novanic.hydradar.io.data.symbol.TypeSymbol;
 import de.novanic.hydradar.io.data.symbol.VariableSymbol;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
-import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
-import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.PlatformUI;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -30,15 +25,10 @@ public final class SymbolTreeContentProviderFactory
         return SymbolTreeContentProviderFactoryHolder.myInstance;
     }
 
-    public SymbolTreeContentProvider createSymbolTreeContentProvider(ResultData aResultData, boolean isShowCurrentType, boolean isShowSystemGroup) {
+    public SymbolTreeContentProvider createSymbolTreeContentProvider(ResultData aResultData, boolean isShowCurrentType, IType aCurrentType, boolean isShowSystemGroup) {
         final SymbolTreeContentProvider theContentProvider;
         if(isShowCurrentType) {
-            IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-            if(theActiveEditor instanceof CompilationUnitEditor) {
-                theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(aResultData, theActiveEditor);
-            } else {
-                theContentProvider = createEmptyContentProvider();
-            }
+            theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(aResultData, aCurrentType);
         } else if(isShowSystemGroup) {
             theContentProvider = createUnusedSymbolsGroupedBySystemModuleContentProvider(aResultData);
         } else {
@@ -51,14 +41,10 @@ public final class SymbolTreeContentProviderFactory
         return new TreeContentProviderUngrouped();
     }
 
-    private SymbolTreeContentProvider createUnusedSymbolsOfActiveTypeContentProvider(ResultData aResultData, IEditorPart aWorkbenchPart) {
-        ITypeRoot theType = EditorUtility.getEditorInputJavaElement(aWorkbenchPart, false);
-        if(theType != null) {
-            IType thePrimaryType = theType.findPrimaryType();
-            if(thePrimaryType != null) {
-                String theTypeName = thePrimaryType.getFullyQualifiedName();
-                return createUnusedSymbolsOfTypeContentProvider(theTypeName, aResultData);
-            }
+    private SymbolTreeContentProvider createUnusedSymbolsOfActiveTypeContentProvider(ResultData aResultData, IType aCurrentType) {
+        if(aCurrentType != null) {
+            String theTypeName = aCurrentType.getFullyQualifiedName();
+            return createUnusedSymbolsOfTypeContentProvider(theTypeName, aResultData);
         }
         return createEmptyContentProvider();
     }

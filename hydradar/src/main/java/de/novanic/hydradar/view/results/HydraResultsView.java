@@ -16,6 +16,10 @@ import de.novanic.hydradar.view.results.content.SymbolTreeContentProvider;
 import de.novanic.hydradar.view.results.content.SymbolTreeContentProviderFactory;
 import de.novanic.hydradar.view.util.IconLoader;
 import org.eclipse.e4.core.services.events.IEventBroker;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.*;
@@ -24,10 +28,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IPartListener;
-import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchPartSite;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.*;
 import org.eclipse.ui.dialogs.FilteredTree;
 import org.eclipse.ui.dialogs.PatternFilter;
 import org.eclipse.ui.part.ViewPart;
@@ -120,11 +121,20 @@ public class HydraResultsView extends ViewPart implements EventHandler {
             @Override
             public void partBroughtToTop(IWorkbenchPart aWorkbenchPart) {
                 if(myResultsToolbar.isShowCurrentTypeActionChecked()) {
-                    SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(
-                            myResultData,
-                            true,
-                            myResultsToolbar.isSystemGroupActionChecked());
-                    refreshView(theContentProvider);
+                    final IType theCurrentType = determineCurrentType(true);
+                    
+                    Runnable theRunnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(
+                                    myResultData,
+                                    true,
+                                    theCurrentType,
+                                    myResultsToolbar.isSystemGroupActionChecked());
+                            myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
+                        }
+                    };
+                    new Thread(theRunnable).start();
                 }
             }
 
@@ -142,6 +152,9 @@ public class HydraResultsView extends ViewPart implements EventHandler {
     public void reload() {
         myResultsToolbar.disable();
 
+        final boolean isShowCurrentType = myResultsToolbar.isShowCurrentTypeActionChecked();
+        final IType theCurrentType = determineCurrentType(isShowCurrentType);
+
         Runnable theReloadRunnable = new Runnable() {
             @Override
             public void run() {
@@ -153,13 +166,15 @@ public class HydraResultsView extends ViewPart implements EventHandler {
 
                     theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(
                             myResultData,
-                            myResultsToolbar.isShowCurrentTypeActionChecked(),
+                            isShowCurrentType,
+                            theCurrentType,
                             myResultsToolbar.isSystemGroupActionChecked());
                 } else {
                     setTitleToolTip("");
 
                     theContentProvider = mySymbolTreeContentProviderFactory.createEmptyContentProvider();
                 }
+                myResultsTree.getViewer().setContentProvider(theContentProvider);
 
                 myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
             }
@@ -169,9 +184,11 @@ public class HydraResultsView extends ViewPart implements EventHandler {
 
     @Override
     public void handleEvent(Event aEvent) {
-        SymbolTreeContentProvider theContentProvider = (SymbolTreeContentProvider)aEvent.getProperty(IEventBroker.DATA);
-        refreshView(theContentProvider);
-        myResultsToolbar.enable();
+        if(EVENT_GRAPH_REFRESH.equals(aEvent.getTopic())) {
+            SymbolTreeContentProvider theContentProvider = (SymbolTreeContentProvider)aEvent.getProperty(IEventBroker.DATA);
+            refreshView(theContentProvider);
+            myResultsToolbar.enable();
+        }
     }
 
     private void refreshView(SymbolTreeContentProvider aContentProvider) {
@@ -191,15 +208,29 @@ public class HydraResultsView extends ViewPart implements EventHandler {
 
         theResultsToolbar.addListener(new HydraResultsToolbarListener() {
             @Override
-            public void onToggleShowCurrentType(boolean isShowCurrentType) {
-                SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(myResultData, isShowCurrentType, false);
-                refreshView(theContentProvider);
+            public void onToggleShowCurrentType(final boolean isShowCurrentType) {
+                final IType theCurrentType = determineCurrentType(isShowCurrentType);
+
+                Runnable theRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(myResultData, isShowCurrentType, theCurrentType, false);
+                        myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
+                    }
+                };
+                new Thread(theRunnable).start();
             }
 
             @Override
-            public void onToggleSystemModuleGroup(boolean isShowSystemGroup) {
-                SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(myResultData, false, isShowSystemGroup);
-                refreshView(theContentProvider);
+            public void onToggleSystemModuleGroup(final boolean isShowSystemGroup) {
+                Runnable theRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(myResultData, false, null, isShowSystemGroup);
+                        myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
+                    }
+                };
+                new Thread(theRunnable).start();
             }
         });
         return theResultsToolbar;
@@ -223,5 +254,18 @@ public class HydraResultsView extends ViewPart implements EventHandler {
             }
         }
         return theTreeCategoryItems;
+    }
+
+    private IType determineCurrentType(boolean isShowCurrentType) {
+        if(isShowCurrentType) {
+            IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+            if(theActiveEditor instanceof CompilationUnitEditor) {
+                ITypeRoot theType = EditorUtility.getEditorInputJavaElement(theActiveEditor, false);
+                if(theType != null) {
+                    return theType.findPrimaryType();
+                }
+            }
+        }
+        return null;
     }
 }
