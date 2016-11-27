@@ -207,6 +207,12 @@ public class HydraResultsView extends ViewPart implements EventHandler {
         theResultsToolbar.addListener(new HydraResultsToolbarListener() {
             @Override
             public void onToggleShowCurrentType(final boolean isShowCurrentType) {
+                //When the toggle is deactivated all levels should get collapsed, because all levels were expanded before, by default.
+                // This makes the switch faster within the UI and looks more smooth.
+                if(!isShowCurrentType) {
+                    myResultsTree.getViewer().collapseAll();
+                }
+
                 final IType theCurrentType = determineCurrentType(isShowCurrentType);
 
                 startThread(new Runnable() {
