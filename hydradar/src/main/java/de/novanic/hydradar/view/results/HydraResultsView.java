@@ -118,14 +118,9 @@ public class HydraResultsView extends ViewPart {
 
             @Override
             public void partBroughtToTop(IWorkbenchPart aWorkbenchPart) {
-                if(myResultsToolbar.isShowCurrentTypeActionChecked() && aWorkbenchPart instanceof IEditorPart) {
-                    if(aWorkbenchPart instanceof CompilationUnitEditor) {
-                        SymbolTreeContentProvider theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider((IEditorPart)aWorkbenchPart);
-                        refreshView(theContentProvider);
-                    } else {
-                        SymbolTreeContentProvider theEmptyContentProvider = createEmptyContentProvider();
-                        refreshView(theEmptyContentProvider);
-                    }
+                if(myResultsToolbar.isShowCurrentTypeActionChecked()) {
+                    SymbolTreeContentProvider theContentProvider = createSymbolTreeContentProvider(true, myResultsToolbar.isSystemGroupActionChecked());
+                    refreshView(theContentProvider);
                 }
             }
 
@@ -143,26 +138,9 @@ public class HydraResultsView extends ViewPart {
     public void reload() {
         myResultData = new HydraResultsImporter().load();
 
-        final SymbolTreeContentProvider theContentProvider;
-        if(myResultData.getResultFile() != null) {
-            setTitleToolTip(myResultData.getResultFile().getName());
-
-            if(myResultsToolbar.isShowCurrentTypeActionChecked()) {
-                IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-                if(theActiveEditor instanceof CompilationUnitEditor) {
-                    theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(theActiveEditor);
-                } else {
-                    theContentProvider = createEmptyContentProvider();
-                }
-            } else if(myResultsToolbar.isSystemGroupActionChecked()) {
-                theContentProvider = createUnusedSymbolsGroupedBySystemModuleContentProvider(myResultData);
-            } else {
-                theContentProvider = createUnusedSymbolsContentProvider(myResultData);
-            }
-        } else {
-            setTitleToolTip("");
-            theContentProvider = createEmptyContentProvider();
-        }
+        final SymbolTreeContentProvider theContentProvider = createSymbolTreeContentProvider(
+                myResultsToolbar.isShowCurrentTypeActionChecked(),
+                myResultsToolbar.isSystemGroupActionChecked());
         refreshView(theContentProvider);
     }
 
@@ -252,27 +230,14 @@ public class HydraResultsView extends ViewPart {
         theResultsToolbar.addListener(new HydraResultsToolbarListener() {
             @Override
             public void onToggleShowCurrentType(boolean isShowCurrentType) {
-                if(isShowCurrentType) {
-                    IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
-                    if(theActiveEditor instanceof CompilationUnitEditor) {
-                        SymbolTreeContentProvider theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(theActiveEditor);
-                        refreshView(theContentProvider);
-                    }
-                } else {
-                    SymbolTreeContentProvider theContentProvider = createUnusedSymbolsContentProvider(myResultData);
-                    refreshView(theContentProvider);
-                }
+                SymbolTreeContentProvider theContentProvider = createSymbolTreeContentProvider(isShowCurrentType, false);
+                refreshView(theContentProvider);
             }
 
             @Override
             public void onToggleSystemModuleGroup(boolean isShowSystemGroup) {
-                if(isShowSystemGroup) {
-                    SymbolTreeContentProvider theContentProvider = createUnusedSymbolsGroupedBySystemModuleContentProvider(myResultData);
-                    refreshView(theContentProvider);
-                } else {
-                    SymbolTreeContentProvider theContentProvider = createUnusedSymbolsContentProvider(myResultData);
-                    refreshView(theContentProvider);
-                }
+                SymbolTreeContentProvider theContentProvider = createSymbolTreeContentProvider(false, isShowSystemGroup);
+                refreshView(theContentProvider);
             }
         });
         return theResultsToolbar;
@@ -296,6 +261,30 @@ public class HydraResultsView extends ViewPart {
             }
         }
         return theTreeCategoryItems;
+    }
+
+    private SymbolTreeContentProvider createSymbolTreeContentProvider(boolean isShowCurrentType, boolean isShowSystemGroup) {
+        final SymbolTreeContentProvider theContentProvider;
+        if(myResultData.getResultFile() != null) {
+            setTitleToolTip(myResultData.getResultFile().getName());
+
+            if(isShowCurrentType) {
+                IEditorPart theActiveEditor = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
+                if(theActiveEditor instanceof CompilationUnitEditor) {
+                    theContentProvider = createUnusedSymbolsOfActiveTypeContentProvider(theActiveEditor);
+                } else {
+                    theContentProvider = createEmptyContentProvider();
+                }
+            } else if(isShowSystemGroup) {
+                theContentProvider = createUnusedSymbolsGroupedBySystemModuleContentProvider(myResultData);
+            } else {
+                theContentProvider = createUnusedSymbolsContentProvider(myResultData);
+            }
+        } else {
+            setTitleToolTip("");
+            theContentProvider = createEmptyContentProvider();
+        }
+        return theContentProvider;
     }
 
     private class TreeCategoryLabelProvider extends LabelProvider
