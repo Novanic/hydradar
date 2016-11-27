@@ -57,23 +57,27 @@ public class HydraResultsView extends ViewPart {
     public void createPartControl(Composite aParent) {
         myResultsTree = createResultsTree(aParent, getSite());
         myResultsToolbar = attachToolbar();
-        
+
         reload();
 
         registerTreeCategoryItemListener(myResultsTree);
         registerActiveWindowSwitchListener();
     }
 
-    private static FilteredTree createResultsTree(Composite aParent, IWorkbenchPartSite aSite) {
+    private FilteredTree createResultsTree(Composite aParent, IWorkbenchPartSite aSite) {
         PatternFilter theFilter = new PatternFilter();
         theFilter.setIncludeLeadingWildcard(true);
+
         FilteredTree theResultsTree = new FilteredTree(aParent, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL, theFilter, true);
+        TreeViewer theTreeViewer = theResultsTree.getViewer();
 
         MenuManager theMenuManager = new MenuManager();
-        Menu theTreeContextMenu = theMenuManager.createContextMenu(theResultsTree.getViewer().getTree());
-        theResultsTree.getViewer().getTree().setMenu(theTreeContextMenu);
-        aSite.registerContextMenu(theMenuManager, theResultsTree.getViewer());
-        aSite.setSelectionProvider(theResultsTree.getViewer());
+        Menu theTreeContextMenu = theMenuManager.createContextMenu(theTreeViewer.getTree());
+        theTreeViewer.getTree().setMenu(theTreeContextMenu);
+        aSite.registerContextMenu(theMenuManager, theTreeViewer);
+        aSite.setSelectionProvider(theTreeViewer);
+
+        theTreeViewer.setLabelProvider(new TreeCategoryLabelProvider());
 
         return theResultsTree;
     }
@@ -229,7 +233,6 @@ public class HydraResultsView extends ViewPart {
         setTitleImage(IMAGE_ICON);
 
         aResultsTree.getViewer().setContentProvider(new TreeContentProviderGrouped(aResultData));
-        aResultsTree.getViewer().setLabelProvider(new TreeCategoryLabelProvider());
         aResultsTree.getViewer().setInput(getViewSite());
     }
 
@@ -248,7 +251,6 @@ public class HydraResultsView extends ViewPart {
         }
 
         aResultsTree.getViewer().setContentProvider(new TreeContentProviderUngrouped(aUnusedPackages, aUnusedTypes, aUnusedMethods, aUselessMethods, aUnusedVariables));
-        aResultsTree.getViewer().setLabelProvider(new TreeCategoryLabelProvider());
         aResultsTree.getViewer().setInput(getViewSite());
     }
 
