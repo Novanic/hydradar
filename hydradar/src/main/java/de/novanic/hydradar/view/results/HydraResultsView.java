@@ -155,18 +155,13 @@ public class HydraResultsView extends ViewPart {
     }
 
     private void attachUnusedSymbols(ResultData aResultData, FilteredTree aResultsTree) {
-        SortedSet<String> theUnusedPackages = new TreeSet<>(aResultData.getUnusedPackages());
-        SortedSet<String> theUnusedTypes = new TreeSet<>(aResultData.getUnusedTypes());
-        SortedSet<String> theUnusedMethods = new TreeSet<>(aResultData.getUnusedMethods());
-        SortedSet<String> theUselessMethods = new TreeSet<>(aResultData.getUselessMethods());
-        SortedSet<String> theUnusedVariables = new TreeSet<>(aResultData.getUnusedVariables());
 
         displayUnusedSymbols(aResultsTree,
-                new ArrayList<>(theUnusedPackages),
-                new ArrayList<>(theUnusedTypes),
-                new ArrayList<>(theUnusedMethods),
-                new ArrayList<>(theUselessMethods),
-                new ArrayList<>(theUnusedVariables));
+                aResultData.getUnusedPackages(),
+                aResultData.getUnusedTypes(),
+                aResultData.getUnusedMethods(),
+                aResultData.getUselessMethods(),
+                aResultData.getUnusedVariables());
     }
 
     private void attachUnusedSymbolsGroupedBySystemModule(ResultData aResultData, FilteredTree aResultsTree) {
