@@ -28,7 +28,7 @@ import java.util.TreeSet;
  *         <br>Date: 04.09.2016
  *         <br>Time: 15:07
  */
-public class TreeContentProviderUngrouped extends AbstractTreeContentProvider
+class TreeContentProviderUngrouped extends AbstractTreeContentProvider
 {
     private final PackageTreeCategory myPackageTreeCategory;
     private final TypesTreeCategory myTypesTreeCategory;

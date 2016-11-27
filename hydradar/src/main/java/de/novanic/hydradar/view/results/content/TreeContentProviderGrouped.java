@@ -25,7 +25,7 @@ import java.util.List;
  *         <br>Date: 04.09.2016
  *         <br>Time: 15:09
  */
-public class TreeContentProviderGrouped extends AbstractTreeContentProvider
+class TreeContentProviderGrouped extends AbstractTreeContentProvider
 {
     private final ResultData myResultData;
 
