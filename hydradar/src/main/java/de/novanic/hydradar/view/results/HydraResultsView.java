@@ -122,8 +122,8 @@ public class HydraResultsView extends ViewPart implements EventHandler {
             public void partBroughtToTop(IWorkbenchPart aWorkbenchPart) {
                 if(myResultsToolbar.isShowCurrentTypeActionChecked()) {
                     final IType theCurrentType = determineCurrentType(true);
-                    
-                    Runnable theRunnable = new Runnable() {
+
+                    startThread(new Runnable() {
                         @Override
                         public void run() {
                             SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(
@@ -133,8 +133,7 @@ public class HydraResultsView extends ViewPart implements EventHandler {
                                     myResultsToolbar.isSystemGroupActionChecked());
                             myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
                         }
-                    };
-                    new Thread(theRunnable).start();
+                    });
                 }
             }
 
@@ -155,7 +154,7 @@ public class HydraResultsView extends ViewPart implements EventHandler {
         final boolean isShowCurrentType = myResultsToolbar.isShowCurrentTypeActionChecked();
         final IType theCurrentType = determineCurrentType(isShowCurrentType);
 
-        Runnable theReloadRunnable = new Runnable() {
+        startThread(new Runnable() {
             @Override
             public void run() {
                 myResultData = new HydraResultsImporter().load();
@@ -178,8 +177,7 @@ public class HydraResultsView extends ViewPart implements EventHandler {
 
                 myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
             }
-        };
-        new Thread(theReloadRunnable).start();
+        });
     }
 
     @Override
@@ -211,26 +209,24 @@ public class HydraResultsView extends ViewPart implements EventHandler {
             public void onToggleShowCurrentType(final boolean isShowCurrentType) {
                 final IType theCurrentType = determineCurrentType(isShowCurrentType);
 
-                Runnable theRunnable = new Runnable() {
+                startThread(new Runnable() {
                     @Override
                     public void run() {
                         SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(myResultData, isShowCurrentType, theCurrentType, false);
                         myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
                     }
-                };
-                new Thread(theRunnable).start();
+                });
             }
 
             @Override
             public void onToggleSystemModuleGroup(final boolean isShowSystemGroup) {
-                Runnable theRunnable = new Runnable() {
+                startThread(new Runnable() {
                     @Override
                     public void run() {
                         SymbolTreeContentProvider theContentProvider = mySymbolTreeContentProviderFactory.createSymbolTreeContentProvider(myResultData, false, null, isShowSystemGroup);
                         myEventBroker.send(EVENT_GRAPH_REFRESH, theContentProvider);
                     }
-                };
-                new Thread(theRunnable).start();
+                });
             }
         });
         return theResultsToolbar;
@@ -267,5 +263,9 @@ public class HydraResultsView extends ViewPart implements EventHandler {
             }
         }
         return null;
+    }
+
+    private void startThread(Runnable aRunnable) {
+        new Thread(aRunnable).start();
     }
 }
